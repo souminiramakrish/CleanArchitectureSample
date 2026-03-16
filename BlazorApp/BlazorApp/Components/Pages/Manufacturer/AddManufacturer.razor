@@ -1,0 +1,39 @@
+﻿@page "/manufacturer/add"
+@inject HttpClient Http
+@inject Microsoft.AspNetCore.Components.NavigationManager navigation
+@using BlazorApp.Shared.Models
+
+<h1>Create</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form>
+            <div class="form-group">
+                <label for="Name" class="control-label">Name</label>
+                <input for="Name" class="form-control" @bind="@manufacturer.Name" />
+            </div>
+         
+            <div class="form-group">
+                <button type="submit" class="btn btn-default" @onclick="@(async () => await CreateManufacturer())">Save</button>
+                <button class="btn" @onclick="@cancel">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@code {
+
+    Manufacturer manufacturer = new Manufacturer();
+
+    protected async Task CreateManufacturer()
+    {
+        await Http.PostAsJsonAsync("/Manufacturer/Create", manufacturer);
+        navigation.NavigateTo("/manufacturer");
+    }
+
+    void cancel()
+    {
+        navigation.NavigateTo("/manufacturer");
+    }
+}

@@ -1,0 +1,52 @@
+﻿@page "/manufacturer"
+@inject HttpClient Http
+@using BlazorApp.Shared.Models
+
+<h1>Manufacturers</h1>
+
+<p>
+    <a href="/manufacturer/add">Create</a>
+</p>
+
+@if (manufacturerList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+               
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var manufacturer in manufacturerList)
+            {
+                <tr>
+                    <td>@manufacturer.Id</td>
+                    <td>@manufacturer.Name</td>
+                    
+                    <td>
+                        <a href='/employee/edit/@manufacturer.Id'>Edit</a>  |
+                        <a href='/employee/delete/@manufacturer.Id'>Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    Manufacturer[] manufacturerList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        manufacturerList = await Http.GetFromJsonAsync<Manufacturer[]>("/Manufacturer/getall");
+    }
+
+  
+}

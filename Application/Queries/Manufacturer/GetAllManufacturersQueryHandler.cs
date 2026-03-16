@@ -23,12 +23,12 @@ namespace Application.Queries.Manufacturer
             _mapper = mapper;
         }
 
-        public Task<IEnumerable<ManufacturerDTO>> Handle(GetAllManufacturersQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ManufacturerDTO>> Handle(GetAllManufacturersQuery request, CancellationToken cancellationToken)
         {
-            var manufacturers = _manufacturerRepository.GetAll();
+            var manufacturers = await _manufacturerRepository.GetAllAsync();
             var manufacturerDTOs = _mapper.Map<IEnumerable<ManufacturerDTO>>(manufacturers);
 
-            return Task.FromResult(manufacturerDTOs);
+            return manufacturerDTOs;
         }
     }
 }
