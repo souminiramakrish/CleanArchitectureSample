@@ -15,24 +15,24 @@ namespace Infrastructure.Repositories
             _dbSet = _context.Set<TEntity>();
         }
 
-        public TEntity GetById(int id)
+        public async Task<TEntity> GetByIdAsync(int id)
         {
-            return _dbSet.Find(id);
+            return await _dbSet.FindAsync(id);
         }
 
-        public IEnumerable<TEntity> GetAll()
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            return _dbSet.ToList();
+            return await _dbSet.ToListAsync();
         }
 
         public void Add(TEntity entity)
         {
-            _dbSet.Add(entity);
+            _dbSet.AddAsync(entity);
         }
 
         public void Update(TEntity entity)
         {
-            _dbSet.Update(entity);
+             _dbSet.Update(entity);
         }
 
         public void Delete(TEntity entity)
