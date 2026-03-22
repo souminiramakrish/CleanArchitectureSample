@@ -1,6 +1,7 @@
 ﻿@page "/manufacturer"
 @inject HttpClient Http
 @using BlazorApp.Shared.Models
+@rendermode InteractiveServer
 
 <h1>Manufacturers</h1>
 
@@ -8,45 +9,74 @@
     <a href="/manufacturer/add">Create</a>
 </p>
 
-@if (manufacturerList == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class='table'>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-               
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var manufacturer in manufacturerList)
-            {
-                <tr>
-                    <td>@manufacturer.Id</td>
-                    <td>@manufacturer.Name</td>
-                    
-                    <td>
-                        <a href='/employee/edit/@manufacturer.Id'>Edit</a>  |
-                        <a href='/employee/delete/@manufacturer.Id'>Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+
+<QuickGrid ItemsProvider="@manufacturerProvider"
+           Class="table table-bordered table-striped"
+           Pagination="@pagination" ItemKey="@(p => p.Id)">
+    <TemplateColumn Title="Sl No.">
+        @{
+            int currentPage = pagination.CurrentPageIndex;
+            int itemsPerPage = pagination.ItemsPerPage;
+        }
+        <span>
+            @(currentPage * itemsPerPage + currentPageItems.IndexOf(context) + 1)
+        </span>
+    </TemplateColumn>
+    <PropertyColumn Property="@(p => p.Name)" Sortable="true" />
+    <TemplateColumn Title="Actions" Context="manufacturer">
+        <button class="btn btn-primary btn-sm mx-1" @onclick="() => OnEdit(manufacturer)">Edit</button>
+        <button class="btn btn-danger btn-sm mx-1" @onclick="() => OnDelete(manufacturer)">Delete</button>
+    </TemplateColumn>
+</QuickGrid>
+<Paginator State="@pagination" />
 
 @code {
-    Manufacturer[] manufacturerList;
+    int currentPage = 1;
+    int pageSize = 10;
+    int totalRecords;
+    GridItemsProvider<Manufacturer> manufacturerProvider;
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private QuickGrid<Manufacturer> grid;
+    List<Manufacturer> currentPageItems;
+
 
     protected override async Task OnInitializedAsync()
     {
-        manufacturerList = await Http.GetFromJsonAsync<Manufacturer[]>("/Manufacturer/getall");
+        manufacturerProvider = async request =>
+            {
+                pageSize = request.Count ?? 10;
+                currentPage = (request.StartIndex / pageSize) + 1;
+                var sortBy = request.SortByColumn is not null ? request.SortByColumn.Title : null;
+                if (sortBy != null)
+                {
+                    if (!request.SortByAscending)
+                    {
+                        sortBy += " desc";
+                    }
+                }
+                var apiUrl = $"/Manufacturer/getall?pageNumber={currentPage}&pageSize={pageSize}&sortBy={sortBy}";
+                var apiResult = await Http.GetFromJsonAsync<PagedResponse<Manufacturer>>(apiUrl);
+                currentPageItems = apiResult.Data.ToList();
+                return GridItemsProviderResult.From(currentPageItems, apiResult.TotalRecords);
+            };
     }
 
-  
+    private void OnEdit(Manufacturer manufacturer)
+    {
+        // Implement your edit logic here
+        // This might involve navigating to an edit page or showing a modal/popup
+        Console.WriteLine($"Editing manufacturer: {manufacturer.Name}");
+        // Example: Navigation.NavigateTo($"/manufacturer/edit/{user.Id}");
+    }
+
+    private void OnDelete(Manufacturer manufacturer)
+    {
+        // Implement your delete logic here
+        // This typically involves removing the item from the data source and re-rendering the grid
+        Console.WriteLine($"Deleting user: {manufacturer.Name}");
+        // Example: await Manufacturer.Delete(manufacturer.Id);
+        // Then refresh the grid data
+    }
+
+
 }
