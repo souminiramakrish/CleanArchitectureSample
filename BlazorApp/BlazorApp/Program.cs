@@ -1,4 +1,3 @@
-using BlazorApp.Client.Pages;
 using BlazorApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);

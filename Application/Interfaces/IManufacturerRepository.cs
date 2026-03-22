@@ -1,9 +1,12 @@
-﻿using Domain.Entities;
+﻿using Application.Common;
+using Application.DTOs;
+using Domain.Entities;
 
 namespace Application.Interfaces
 {
     public interface IManufacturerRepository : IBaseRepository<Manufacturer>
     {
-        // We can add manufacturer specific methods if needed
+        // Manufacturer specific methods 
+        Task<PagedResponse<ManufacturerDTO>> GetAllWithPagination(QueryFilter filter, CancellationToken cancellationToken = default);
     }
 }

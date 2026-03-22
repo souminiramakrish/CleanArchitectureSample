@@ -1,4 +1,5 @@
 ﻿using Application.Commands;
+using Application.Common;
 using Application.Queries.Manufacturer;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -35,11 +36,11 @@ namespace WebAPI.Controllers
 
         [Route("getall")]
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync([FromQuery] QueryFilter filter)
         {
             try
             {
-                var result = await _mediator.Send(new GetAllManufacturersQuery());
+                var result = await _mediator.Send(new GetAllManufacturersQuery(filter));
                 return Ok(result);
             }
             catch (Exception ex)
