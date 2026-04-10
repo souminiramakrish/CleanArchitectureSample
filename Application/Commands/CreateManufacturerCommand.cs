@@ -1,9 +1,14 @@
-﻿using MediatR;
+﻿using Application.DTOs;
+using MediatR;
 
 namespace Application.Commands
 {
     public class CreateManufacturerCommand : IRequest<bool>
     {
-        public string Name { get; set; }
+        public ManufacturerDTO _manufacturer { get; set; }
+        public CreateManufacturerCommand(ManufacturerDTO manufacturer)
+        {
+            _manufacturer = manufacturer;
+        }
     }
 }
