@@ -3,9 +3,12 @@ using BlazorApp.Components;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
+builder.Services.AddRazorComponents(options =>
+    options.DetailedErrors = builder.Environment.IsDevelopment())
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new("https://localhost:7123") });
 

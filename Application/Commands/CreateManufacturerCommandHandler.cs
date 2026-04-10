@@ -11,14 +11,14 @@ namespace Application.Commands
         {
             _unitOfWork = unitOfWork;
         }
-        public Task<bool> Handle(CreateManufacturerCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(CreateManufacturerCommand request, CancellationToken cancellationToken)
         {
             _unitOfWork.Manufacturers.Add(new Manufacturer
             {
-                Name = request.Name
+                Name = request._manufacturer.Name
             });
-            _unitOfWork.SaveChangesAsync();
-            return Task.FromResult(true);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
         }
     }
 }

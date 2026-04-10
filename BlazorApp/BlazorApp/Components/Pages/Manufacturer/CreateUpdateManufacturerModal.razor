@@ -1,0 +1,67 @@
+﻿@using BlazorApp.Shared.Models
+@inject HttpClient Http
+@rendermode InteractiveServer
+
+
+<Modal @ref="modal" Title="Add Item">
+    <BodyTemplate>
+        <div class="row">
+            <EditForm Model="@manufacturer" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" class="form-control" @bind-Value="manufacturer.Name" />
+                    <ValidationMessage For="@(() => manufacturer.Name)" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </EditForm>
+        </div>
+    </BodyTemplate>
+</Modal>
+
+
+@code {
+    private Modal modal = default!;
+    private Manufacturer manufacturer = new();
+
+    [Parameter] public int manufacturerId { get; set; }
+    [Parameter]
+    public EventCallback<bool> OnSave { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (manufacturerId > 0)
+        {
+            var apiUrl = $"/Manufacturer/getById/{manufacturerId}";
+            manufacturer = await Http.GetFromJsonAsync<Manufacturer>(apiUrl);
+        }
+    }
+    public async Task ShowModalAsync() => await modal.ShowAsync();
+    private async Task HideModalAsync() => await modal.HideAsync();
+
+    private async Task HandleValidSubmit()
+    {
+        // Save to database
+        if (manufacturerId == 0)
+        {
+            var result = await Http.PostAsJsonAsync($"/Manufacturer/create", manufacturer);
+        }
+        else
+        {
+            var result = await Http.PutAsJsonAsync($"/Manufacturer/update", manufacturer);
+        }
+        // Reset the form model for next use
+        manufacturer = new Manufacturer();
+
+        // Manually trigger re-render if necessary for the parent component,
+        // though Blazor typically handles this after an async call.
+        StateHasChanged();
+        await OnSave.InvokeAsync(true);
+        // Close the modal
+        await HideModalAsync();
+    }
+}

@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\BlazorApp.Shared\BlazorApp.Shared.csproj" />
     <ProjectReference Include="..\BlazorApp.Client\BlazorApp.Client.csproj" />
+    <PackageReference Include="Blazor.Bootstrap" Version="3.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.25" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.12" />
   </ItemGroup>

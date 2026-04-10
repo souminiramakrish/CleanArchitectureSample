@@ -2,17 +2,18 @@
 @inject HttpClient Http
 @using BlazorApp.Shared.Models
 @rendermode InteractiveServer
+@inject IJSRuntime JsRuntime
 
 <h1>Manufacturers</h1>
 
 <p>
-    <a href="/manufacturer/add">Create</a>
+    <button class="btn btn-primary btn-sm mx-1" @onclick="() => OnCreate()">Create</button>
 </p>
 
 
-<QuickGrid ItemsProvider="@manufacturerProvider"
-           Class="table table-bordered table-striped"
-           Pagination="@pagination" ItemKey="@(p => p.Id)">
+<QuickGrid ItemsProvider="@manufacturerProvider" @ref="grid"
+Class="table table-bordered table-striped"
+Pagination="@pagination" ItemKey="@(p => p.Id)">
     <TemplateColumn Title="Sl No.">
         @{
             int currentPage = pagination.CurrentPageIndex;
@@ -25,10 +26,13 @@
     <PropertyColumn Property="@(p => p.Name)" Sortable="true" />
     <TemplateColumn Title="Actions" Context="manufacturer">
         <button class="btn btn-primary btn-sm mx-1" @onclick="() => OnEdit(manufacturer)">Edit</button>
-        <button class="btn btn-danger btn-sm mx-1" @onclick="() => OnDelete(manufacturer)">Delete</button>
+        <button class="btn btn-danger btn-sm mx-1" @onclick="() => OnConfirmDelete(manufacturer.Id)">Delete</button>
     </TemplateColumn>
 </QuickGrid>
 <Paginator State="@pagination" />
+
+
+<CreateUpdateManufacturerModal @ref="modal" manufacturerId="@selectedManufacturerId" OnSave="@OnManufacturerSaved" />
 
 @code {
     int currentPage = 1;
@@ -38,7 +42,9 @@
     private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private QuickGrid<Manufacturer> grid;
     List<Manufacturer> currentPageItems;
+    int selectedManufacturerId;
 
+    private CreateUpdateManufacturerModal modal = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,22 +67,41 @@
             };
     }
 
-    private void OnEdit(Manufacturer manufacturer)
+    private async Task OnCreate()
     {
-        // Implement your edit logic here
-        // This might involve navigating to an edit page or showing a modal/popup
-        Console.WriteLine($"Editing manufacturer: {manufacturer.Name}");
-        // Example: Navigation.NavigateTo($"/manufacturer/edit/{user.Id}");
+        selectedManufacturerId = 0;
+        await modal.ShowModalAsync();
     }
 
-    private void OnDelete(Manufacturer manufacturer)
+    private async Task OnEdit(Manufacturer manufacturer)
     {
-        // Implement your delete logic here
-        // This typically involves removing the item from the data source and re-rendering the grid
-        Console.WriteLine($"Deleting user: {manufacturer.Name}");
-        // Example: await Manufacturer.Delete(manufacturer.Id);
-        // Then refresh the grid data
+        selectedManufacturerId = manufacturer.Id;
+        await modal.ShowModalAsync();
     }
 
+    private async Task OnConfirmDelete(int id)
+    {
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this item?");
+        if (confirmed)
+        {
+            var response = await Http.DeleteAsync($"/Manufacturer/delete/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                await grid.RefreshDataAsync();
+            }
+        }
+        
+       
+    }
+    private async Task OnManufacturerSaved(bool saveStatus)
+    {
+        if (saveStatus)
+        {
+            // Refresh the grid data after a successful save
+            await grid.RefreshDataAsync();
+        }
+    }
+    
 
 }
