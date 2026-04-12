@@ -12,7 +12,7 @@ namespace Infrastructure
         private readonly ILogger _logger;
         private IDbContextTransaction _transaction;
 
-        public IManufacturerRepository Manufacturers { get; private set; }
+        public IManufacturerRepository ManufacturerRepository { get; private set; }
 
         public UnitOfWork(
         ApplicationDBContext context,
@@ -22,7 +22,7 @@ namespace Infrastructure
             _context = context;
             _logger = loggerFactory.CreateLogger("logs");
 
-            Manufacturers = new ManufacturerRepository(_context);
+            ManufacturerRepository = new ManufacturerRepository(_context);
         }
 
         public void BeginTransaction()

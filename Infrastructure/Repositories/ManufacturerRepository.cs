@@ -57,5 +57,13 @@ namespace Infrastructure.Repositories
             };
         }
 
+        public async Task<bool> CheckManufacturerExistsByNameAsync(string name, int id = 0)
+        {
+            bool result = id > 0
+               ? await _context.Manufacturers.AnyAsync(m => m.Name == name && m.Id != id)
+               : await _context.Manufacturers.AnyAsync(m => m.Name == name);
+            return result;
+        }
+
     }
 }

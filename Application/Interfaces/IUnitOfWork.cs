@@ -2,7 +2,7 @@
 {
     public interface IUnitOfWork
     {
-        IManufacturerRepository Manufacturers { get; }
+        IManufacturerRepository ManufacturerRepository { get; }
         void BeginTransaction();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

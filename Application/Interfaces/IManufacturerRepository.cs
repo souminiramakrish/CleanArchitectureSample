@@ -8,5 +8,6 @@ namespace Application.Interfaces
     {
         // Manufacturer specific methods 
         Task<PagedResponse<ManufacturerDTO>> GetAllWithPagination(QueryFilter filter, CancellationToken cancellationToken = default);
+        Task<bool> CheckManufacturerExistsByNameAsync(string name, int id = 0);
     }
 }
