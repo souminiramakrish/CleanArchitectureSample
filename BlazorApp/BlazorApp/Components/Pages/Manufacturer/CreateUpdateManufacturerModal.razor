@@ -3,7 +3,7 @@
 @rendermode InteractiveServer
 
 
-<Modal @ref="modal" Title="Add Item">
+<Modal @ref="modal" Title="@(manufacturerId > 0 ? "Edit Manufacturer" : "Create Manufacturer")">
     <BodyTemplate>
         <div class="row">
             <EditForm Model="@manufacturer" OnValidSubmit="@HandleValidSubmit">
@@ -19,19 +19,16 @@
     </BodyTemplate>
 </Modal>
 
-
-@code {
+ @code {
+    [Inject] protected ToastService ToastService { get; set; } = default!;
+   
     private Modal modal = default!;
     private Manufacturer manufacturer = new();
 
     [Parameter] public int manufacturerId { get; set; }
     [Parameter]
     public EventCallback<bool> OnSave { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        
-    }
-
+    
     protected override async Task OnParametersSetAsync()
     {
         if (manufacturerId > 0)
@@ -46,22 +43,30 @@
     private async Task HandleValidSubmit()
     {
         // Save to database
-        if (manufacturerId == 0)
+        bool savedSuccessfully = false;
+        var response = manufacturerId == 0
+            ? await Http.PostAsJsonAsync($"/Manufacturer/create", manufacturer)
+            : await Http.PutAsJsonAsync($"/Manufacturer/update", manufacturer);
+        if (response.IsSuccessStatusCode)
         {
-            var result = await Http.PostAsJsonAsync($"/Manufacturer/create", manufacturer);
-        }
-        else
-        {
-            var result = await Http.PutAsJsonAsync($"/Manufacturer/update", manufacturer);
-        }
-        // Reset the form model for next use
-        manufacturer = new Manufacturer();
+            // Returns the server's response as a 'ResultObject' type
+            var result = await response.Content.ReadFromJsonAsync<CommandResponse>();
+            if (result != null)
+            {
+                if (result.IsSuccess)
+                    savedSuccessfully = true;
 
-        // Manually trigger re-render if necessary for the parent component,
-        // though Blazor typically handles this after an async call.
-        StateHasChanged();
-        await OnSave.InvokeAsync(true);
-        // Close the modal
-        await HideModalAsync();
+                ToastService.Notify(new(result.IsSuccess ? ToastType.Success : ToastType.Danger, result.Message));
+            }
+        }
+
+        if (savedSuccessfully)
+        {
+            manufacturer = new Manufacturer();
+            StateHasChanged();
+            await OnSave.InvokeAsync(true);
+            // Close the modal
+            await HideModalAsync();
+        }
     }
 }

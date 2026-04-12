@@ -1,11 +1,12 @@
-﻿using Application.DTOs;
+﻿using Application.Common;
+using Application.DTOs;
 using Application.Interfaces;
 using MediatR;
 
 namespace Application.Commands
 {
 
-    public class UpdateManufacturerCommand : IRequest<bool>
+    public class UpdateManufacturerCommand : IRequest<CommandResponse>
     {
         public ManufacturerDTO _manufacturer { get; set; }
         public UpdateManufacturerCommand(ManufacturerDTO manufacturer)
@@ -14,26 +15,36 @@ namespace Application.Commands
         }
     }
 
-    public class UpdateManufacturerCommandHandler : IRequestHandler<UpdateManufacturerCommand, bool>
+    public class UpdateManufacturerCommandHandler : IRequestHandler<UpdateManufacturerCommand, CommandResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
         public UpdateManufacturerCommandHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<bool> Handle(UpdateManufacturerCommand request, CancellationToken cancellationToken)
+        public async Task<CommandResponse> Handle(UpdateManufacturerCommand request, CancellationToken cancellationToken)
         {
-            var manufacturer = await _unitOfWork.Manufacturers.GetByIdAsync(request._manufacturer.Id);
+            var response = new CommandResponse()
+            {
+                IsSuccess = false
+            };
+            if (await _unitOfWork.ManufacturerRepository.CheckManufacturerExistsByNameAsync(request._manufacturer.Name, request._manufacturer.Id))
+            {
+                response.Message = "Manufacturer with the same name already exists.";
+                return response;
+            }
+            var manufacturer = await _unitOfWork.ManufacturerRepository.GetByIdAsync(request._manufacturer.Id);
             if (manufacturer == null)
             {
-                return false;
+                response.Message = "Manufacturer not found.";
+                return response;
             }
-
+           
             manufacturer.Name = request._manufacturer.Name;
-            _unitOfWork.Manufacturers.Update(manufacturer);
             await _unitOfWork.SaveChangesAsync();
-
-            return true;
+            response.IsSuccess = true;
+            response.Message = "Manufacturer updated successfully.";
+            return response;
         }
     }
 }

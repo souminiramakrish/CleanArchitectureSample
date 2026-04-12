@@ -3,6 +3,7 @@ using MediatR;
 
 namespace Application.Commands
 {
+    
     public class DeleteManufacturerCommand : IRequest<bool>
     {
         public int Id { get; set; }
@@ -21,13 +22,13 @@ namespace Application.Commands
         }
         public async Task<bool> Handle(DeleteManufacturerCommand request, CancellationToken cancellationToken)
         {
-            var manufacturer = await _unitOfWork.Manufacturers.GetByIdAsync(request.Id);
+            var manufacturer = await _unitOfWork.ManufacturerRepository.GetByIdAsync(request.Id);
             if (manufacturer == null)
             {
                 return false;
             }
 
-            _unitOfWork.Manufacturers.Delete(manufacturer);
+            _unitOfWork.ManufacturerRepository.Delete(manufacturer);
             await _unitOfWork.SaveChangesAsync();
 
             return true;
