@@ -1,0 +1,61 @@
+.manufacturer-page {
+  padding: 1rem;
+}
+
+.manufacturer-page h2 {
+  margin-top: 0;
+}
+
+.manufacturers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.manufacturer-card {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+}
+
+.manufacturer-card:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.manufacturer-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: center;
+}
+
+.loading {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.no-data {
+  padding: 2rem 1rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.error {
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
