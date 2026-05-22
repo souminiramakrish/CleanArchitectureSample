@@ -1,0 +1,16 @@
+<section class="manufacturer-page page">
+  <h1>Manufacturers</h1>
+
+  <p *ngIf="error" class="error">{{ error }}</p>
+
+
+  <div *ngIf="loading" class="loading">Loading manufacturers…</div>
+
+  <div *ngIf="!loading && manufacturers.length > 0" class="manufacturers-grid">
+    <div *ngFor="let m of manufacturers" class="manufacturer-card">
+      <div class="manufacturer-name">{{ m.name }}</div>
+    </div>
+  </div>
+
+  <p *ngIf="!loading && manufacturers.length === 0" class="no-data">No manufacturers found.</p>
+</section>

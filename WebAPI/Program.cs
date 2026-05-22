@@ -20,17 +20,29 @@ builder.Services.RegisterRepositories();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 //builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining(typeof(CreateManufacturerCommandHandler)));
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("frontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:60450")
+              .WithMethods("GET", "POST", "PUT", "DELETE")
+              .WithHeaders("Content-Type", "Authorization")
+              .AllowCredentials();
+    });
+});
 
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseCors("frontend");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 
 app.UseHttpsRedirection();
 
